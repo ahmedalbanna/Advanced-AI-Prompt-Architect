@@ -4,13 +4,16 @@ import {
   Plus, Trash2, Copy, Check, RotateCcw, 
   Settings, User, FileText, Layout, 
   Terminal, BarChart, ListCheck, MessageSquare,
-  ShieldCheck, BrainCircuit, Target, HelpCircle
+  ShieldCheck, BrainCircuit, Target, HelpCircle,
+  Briefcase, Cpu, GraduationCap, BookOpen, FileCode,
+  FileBarChart, ScrollText, Layers, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { ProjectData, GeneratedPrompt, FormalityLevel, OutputFormatType, ReasoningFramework, AudienceLevel } from './types';
 import { generatePrompt } from './services/promptEngine';
+import { PRESET_TEMPLATES, Template } from './templates';
 
 const App: React.FC = () => {
-  const [formData, setFormData] = useState<ProjectData>({
+  const initialData: ProjectData = {
     projectName: '',
     projectDescription: '',
     documentType: '',
@@ -37,8 +40,9 @@ const App: React.FC = () => {
     outputVerification: false,
     successCriteria: '',
     knowledgeHandling: 'Standard'
-  });
+  };
 
+  const [formData, setFormData] = useState<ProjectData>(initialData);
   const [prompt, setPrompt] = useState<GeneratedPrompt>({
     systemInstructions: '',
     userPrompt: ''
@@ -55,6 +59,15 @@ const App: React.FC = () => {
     const { name, value, type } = e.target as any;
     const val = type === 'checkbox' ? (e.target as any).checked : value;
     setFormData(prev => ({ ...prev, [name]: val }));
+  };
+
+  const applyTemplate = (template: Template) => {
+    setFormData({
+      ...initialData,
+      ...template.data
+    });
+    // التمرير للأسفل قليلاً لبدء التحرير
+    window.scrollTo({ top: 400, behavior: 'smooth' });
   };
 
   const toggleOutputFormat = (format: OutputFormatType) => {
@@ -92,53 +105,71 @@ const App: React.FC = () => {
   };
 
   const resetForm = () => {
-    setFormData({
-      projectName: '',
-      projectDescription: '',
-      documentType: '',
-      specialization: '',
-      educationalLevel: '',
-      university: '',
-      citationStyle: 'APA (7th Edition)',
-      language: 'Default',
-      complexity: 50,
-      behaviors: [],
-      mandatoryRules: [],
-      constraints: [],
-      formality: 'Balanced',
-      tone: 'Professional',
-      outputFormats: ['heading', 'paragraph'],
-      includedTopics: '',
-      tableCaption: '',
-      programmingLanguage: '',
-      diagramType: 'Use Case',
-      wordCount: '',
-      customGuidelines: '',
-      audienceLevel: 'Professional',
-      reasoningFramework: 'Standard',
-      outputVerification: false,
-      successCriteria: '',
-      knowledgeHandling: 'Standard'
-    });
+    setFormData(initialData);
+  };
+
+  const getIcon = (iconName: string) => {
+    switch(iconName) {
+      case 'BrainCircuit': return <BrainCircuit size={20} />;
+      case 'Briefcase': return <Briefcase size={20} />;
+      case 'Cpu': return <Cpu size={20} />;
+      case 'GraduationCap': return <GraduationCap size={20} />;
+      case 'BookOpen': return <BookOpen size={20} />;
+      case 'FileCode': return <FileCode size={20} />;
+      case 'FileBarChart': return <FileBarChart size={20} />;
+      case 'ScrollText': return <ScrollText size={20} />;
+      case 'Layers': return <Layers size={20} />;
+      default: return <FileText size={20} />;
+    }
   };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center p-4 md:p-8">
       <header className="w-full max-w-7xl flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <div className="text-right w-full md:w-auto">
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">مهندس البرومبت المتقدم <span className="text-blue-600">v2.0</span></h1>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">مهندس البرومبت المتقدم <span className="text-blue-600">v2.1</span></h1>
           <p className="text-slate-500 mt-1 text-lg">نظام بناء الأوامر الذكي المعتمد على خوارزميات التفكير المنطقي</p>
         </div>
         <div className="flex gap-3">
           <button 
             onClick={resetForm}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-all shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all shadow-sm active:scale-95"
           >
             <RotateCcw size={18} />
             تصفير النموذج
           </button>
         </div>
       </header>
+
+      {/* Template Browser Section */}
+      <section className="w-full max-w-7xl mb-12">
+        <div className="flex items-center justify-between mb-4 px-2">
+          <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <Layout className="text-blue-600" size={20} />
+            تصفح القوالب الجاهزة
+          </h2>
+          <span className="text-xs text-slate-400 font-medium">اختر قالباً للبدء بسرعة</span>
+        </div>
+        <div className="relative group">
+          <div className="flex overflow-x-auto gap-4 pb-4 px-2 no-scrollbar scroll-smooth">
+            {PRESET_TEMPLATES.map((template) => (
+              <button
+                key={template.id}
+                onClick={() => applyTemplate(template)}
+                className="flex-shrink-0 w-64 p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md hover:border-blue-200 transition-all text-right flex flex-col gap-3 group/card"
+              >
+                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl w-fit group-hover/card:bg-blue-600 group-hover/card:text-white transition-colors">
+                  {getIcon(template.icon)}
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-800 text-sm mb-1">{template.title}</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{template.description}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <main className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <section className="lg:col-span-7 space-y-6">
@@ -357,6 +388,8 @@ const App: React.FC = () => {
         .scrollbar-dark::-webkit-scrollbar { width: 6px; }
         .scrollbar-dark::-webkit-scrollbar-track { background: #0f172a; }
         .scrollbar-dark::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );
