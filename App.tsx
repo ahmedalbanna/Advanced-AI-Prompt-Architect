@@ -7,7 +7,7 @@ import {
   ShieldCheck, BrainCircuit, Target, HelpCircle,
   Briefcase, Cpu, GraduationCap, BookOpen, FileCode,
   FileBarChart, ScrollText, Layers, Link as LinkIcon,
-  ChevronDown, ChevronUp, Globe, Award, Zap, Scale
+  ChevronDown, ChevronUp, Globe, Award, Zap, Scale, Wrench
 } from 'lucide-react';
 import { ProjectData, GeneratedPrompt, FormalityLevel, OutputFormatType, ReasoningFramework, AudienceLevel, SeniorityLevel } from './types';
 import { generatePrompt } from './services/promptEngine';
@@ -45,8 +45,8 @@ const App: React.FC = () => {
     seniorityLevel: 'Senior',
     analysisDepth: 'Comprehensive',
     communicationStyle: 'Technical',
-    // Fix: removed tocStructure which was not defined in ProjectData type in types.ts
-    logicalFallacyCheck: true
+    logicalFallacyCheck: true,
+    toolLibraryGuidance: ''
   };
 
   const [formData, setFormData] = useState<ProjectData>(initialData);
@@ -252,6 +252,20 @@ const App: React.FC = () => {
               </div>
             </div>
 
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-slate-500 flex items-center gap-1">
+                <Wrench size={14} /> إرشادات استخدام الأدوات والمكتبات (Tool Guidance)
+              </label>
+              <textarea 
+                name="toolLibraryGuidance" 
+                value={formData.toolLibraryGuidance} 
+                onChange={handleInputChange} 
+                rows={2} 
+                placeholder="مثال: استخدم Pandas لتحليل البيانات، و LaTeX للمعادلات، و Mermaid للرسوم..." 
+                className="input-field resize-none" 
+              />
+            </div>
+
             <div className="flex flex-col gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100 shadow-inner">
                <div className="flex justify-between items-center">
                   <label className="text-sm font-bold text-slate-700">درجة التعقيد الفني</label>
@@ -265,7 +279,7 @@ const App: React.FC = () => {
               <label className="flex items-center gap-3 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 cursor-pointer group hover:bg-indigo-50 transition-colors">
                 <input type="checkbox" name="logicalFallacyCheck" checked={formData.logicalFallacyCheck} onChange={handleInputChange} className="w-5 h-5 accent-indigo-600" />
                 <div className="flex flex-col">
-                  <span className="text-sm font-bold text-indigo-900 flex items-center gap-1"><Scale size={14}/> فحص المغالغاطات المنطقية</span>
+                  <span className="text-sm font-bold text-indigo-900 flex items-center gap-1"><Scale size={14}/> فحص المغالطات المنطقية</span>
                   <span className="text-[10px] text-indigo-700">تنبيه الذكاء الاصطناعي لمراجعة صحة منطقه</span>
                 </div>
               </label>

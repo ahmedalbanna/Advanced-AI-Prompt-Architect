@@ -45,11 +45,12 @@ export interface ProjectData {
   outputVerification: boolean;
   successCriteria: string;
   knowledgeHandling: 'Standard' | 'Strict (No Hallucination)' | 'Creative Synthesis';
-  // الحقول الجديدة لزيادة الدقة
   seniorityLevel: SeniorityLevel;
   analysisDepth: 'Surface' | 'Comprehensive' | 'Deep-Dive' | 'Atomic/Extremely Detailed';
   communicationStyle: 'Direct' | 'Narrative' | 'Technical' | 'Persuasive';
   logicalFallacyCheck: boolean;
+  // New field for specific tool/library instructions
+  toolLibraryGuidance: string;
 }
 
 export interface GeneratedPrompt {

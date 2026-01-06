@@ -3,7 +3,7 @@
  * ProjectAvailabilityRecord
  * واجهة تمثل سجلًا واحدًا يصف توفر جميع بيانات المشروع.
  */
-interface ProjectAvailabilityRecord {
+export interface ProjectAvailabilityRecord {
   // المعلومات الأساسية
   projectName: boolean;
   projectDescription: boolean;
@@ -48,18 +48,17 @@ interface ProjectAvailabilityRecord {
   successCriteria: boolean;
   logicalFallacyCheck: boolean;
   communicationStyle: boolean;
+  toolLibraryGuidance: boolean;
 
   // عمود التلخيص النصي المطلوب
   summary: string;
 }
-```
 
-## 2. جدول احتمالات التوفر (بيانات نموذجية)
-
-يوضح الجدول التالي أمثلة لسيناريوهات مختلفة لتوفر بيانات المشروع (ممثلة بالقيم `true` و `false`):
-
-```typescript
-const ProjectAvailabilityData: ProjectAvailabilityRecord[] = [
+/**
+ * ProjectAvailabilityData
+ * أمثلة لسيناريوهات مختلفة لتوفر بيانات المشروع (ممثلة بالقيم true و false).
+ */
+export const ProjectAvailabilityData: ProjectAvailabilityRecord[] = [
   // ----------------------------------------------------------------------
   // السيناريو 1: الحد الأدنى للمعلومات (Skeletal Input)
   {
@@ -94,6 +93,7 @@ const ProjectAvailabilityData: ProjectAvailabilityRecord[] = [
     analysisDepth: false,
     communicationStyle: false,
     logicalFallacyCheck: false,
+    toolLibraryGuidance: false,
     summary: "المعلومات المتوفرة هي اسم المشروع ووصفه ولغة الإخراج فقط. لا توجد قيود شكلية أو متطلبات أكاديمية أو تقنية محددة.",
   },
   // ----------------------------------------------------------------------
@@ -130,6 +130,7 @@ const ProjectAvailabilityData: ProjectAvailabilityRecord[] = [
     analysisDepth: false,
     communicationStyle: false,
     logicalFallacyCheck: false,
+    toolLibraryGuidance: false,
     summary: "تم تحديد جميع المتطلبات الأكاديمية (الجامعة، المستوى، أسلوب الاقتباس، النوع) مع تحديد القواعد الشكلية والأسلوب (النبرة، الصياغة). لا توجد متطلبات تقنية أو برمجية.",
   },
   // ----------------------------------------------------------------------
@@ -166,6 +167,7 @@ const ProjectAvailabilityData: ProjectAvailabilityRecord[] = [
     analysisDepth: true,
     communicationStyle: false,
     logicalFallacyCheck: false,
+    toolLibraryGuidance: true,
     summary: "توفر بيانات تقنية مفصلة تشمل لغة البرمجة، نوع المخططات، السلوكيات، والقواعد الإلزامية والقيود. تم تحديد مستوى التعقيد وعمق التحليل ومستوى الأقدمية للجمهور.",
   },
   // ----------------------------------------------------------------------
@@ -202,7 +204,8 @@ const ProjectAvailabilityData: ProjectAvailabilityRecord[] = [
     analysisDepth: true,
     communicationStyle: true,
     logicalFallacyCheck: true,
-    summary: "التركيز الأساسي على ضمان الجودة والمنطق؛ تم تحديد إطار العمل المنطقي، ومعايير النجاح، وآلية التحقق من المخرجات، وضوابط المغالطات المنطقية، ونمط التواصل.",
+    toolLibraryGuidance: false,
+    summary: "التركيز الأساسي على ضمان الجودة والمنطق؛ تم تحديد إطار العمل المنطقي، ومعايير النجاح، وآلية التحقق من المخرجات، وضوابط المغالحات المنطقية، ونمط التواصل.",
   },
   // ----------------------------------------------------------------------
   // السيناريو 5: البيانات متوفرة بالكامل (Full Specification Available)
@@ -238,6 +241,7 @@ const ProjectAvailabilityData: ProjectAvailabilityRecord[] = [
     analysisDepth: true,
     communicationStyle: true,
     logicalFallacyCheck: true,
+    toolLibraryGuidance: true,
     summary: "جميع حقول بيانات المشروع محددة ومتوفرة بالكامل، مما يوفر أقصى قدر من السياق والقيود لإنشاء المشروع.",
   },
 ];

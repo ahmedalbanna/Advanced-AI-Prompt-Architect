@@ -50,7 +50,14 @@ ${data.logicalFallacyCheck ? 'Strict Mandate: Audit your response for logical fa
 - Language: ${data.language}
 - Audience Compatibility: Tailor all concepts for an "${data.audienceLevel}" level.`);
 
-  // 4. معالجة المعرفة والتحقق (Knowledge Management)
+  // 4. بروتوكول الأدوات والمكتبات (New Section)
+  if (data.toolLibraryGuidance) {
+    systemParts.push(`[TOOL_AND_LIBRARY_PROTOCOL]
+When generating technical solutions or citations:
+${data.toolLibraryGuidance}`);
+  }
+
+  // 5. معالجة المعرفة والتحقق (Knowledge Management)
   if (data.outputVerification) {
     systemParts.push(`[QUALITY_ASSURANCE]
 Perform a post-generation self-audit:
@@ -59,7 +66,7 @@ Perform a post-generation self-audit:
 3. Is the complexity level at precisely ${data.complexity}%?`);
   }
 
-  // 5. القواعد الصارمة
+  // 6. القواعد الصارمة
   if (data.mandatoryRules.length > 0 || data.constraints.length > 0) {
     let constraintsSection = '[OPERATIONAL_BOUNDARIES]\n';
     if (data.mandatoryRules.length > 0) {
