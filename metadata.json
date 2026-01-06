@@ -1,0 +1,5 @@
+{
+  "name": "Advanced AI Prompt Architect",
+  "description": "A powerful algorithm-driven tool for generating sophisticated system instructions and user prompts for LLMs based on detailed project parameters and technical constraints.",
+  "requestFramePermissions": []
+}
