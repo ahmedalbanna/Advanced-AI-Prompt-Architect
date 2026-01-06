@@ -7,9 +7,9 @@ import {
   ShieldCheck, BrainCircuit, Target, HelpCircle,
   Briefcase, Cpu, GraduationCap, BookOpen, FileCode,
   FileBarChart, ScrollText, Layers, Link as LinkIcon,
-  ChevronDown, ChevronUp, Globe
+  ChevronDown, ChevronUp, Globe, Award, Zap, Scale
 } from 'lucide-react';
-import { ProjectData, GeneratedPrompt, FormalityLevel, OutputFormatType, ReasoningFramework, AudienceLevel } from './types';
+import { ProjectData, GeneratedPrompt, FormalityLevel, OutputFormatType, ReasoningFramework, AudienceLevel, SeniorityLevel } from './types';
 import { generatePrompt } from './services/promptEngine';
 import { PRESET_TEMPLATES, Template } from './templates';
 
@@ -39,10 +39,14 @@ const App: React.FC = () => {
     customGuidelines: '',
     audienceLevel: 'Professional',
     reasoningFramework: 'Standard',
-    outputVerification: false,
+    outputVerification: true,
     successCriteria: '',
     knowledgeHandling: 'Standard',
-    tocStructure: ''
+    seniorityLevel: 'Senior',
+    analysisDepth: 'Comprehensive',
+    communicationStyle: 'Technical',
+    // Fix: removed tocStructure which was not defined in ProjectData type in types.ts
+    logicalFallacyCheck: true
   };
 
   const [formData, setFormData] = useState<ProjectData>(initialData);
@@ -70,10 +74,7 @@ const App: React.FC = () => {
   };
 
   const applyTemplate = (template: Template) => {
-    setFormData({
-      ...initialData,
-      ...template.data
-    });
+    setFormData({ ...initialData, ...template.data });
     window.scrollTo({ top: 400, behavior: 'smooth' });
   };
 
@@ -88,17 +89,11 @@ const App: React.FC = () => {
 
   const addListItem = (field: 'behaviors' | 'mandatoryRules' | 'constraints', item: string) => {
     if (!item.trim()) return;
-    setFormData(prev => ({
-      ...prev,
-      [field]: [...prev[field], item.trim()]
-    }));
+    setFormData(prev => ({ ...prev, [field]: [...prev[field], item.trim()] }));
   };
 
   const removeListItem = (field: 'behaviors' | 'mandatoryRules' | 'constraints', index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: prev[field].filter((_, i) => i !== index)
-    }));
+    setFormData(prev => ({ ...prev, [field]: prev[field].filter((_, i) => i !== index) }));
   };
 
   const copyToClipboard = async (text: string, id: string) => {
@@ -106,20 +101,22 @@ const App: React.FC = () => {
       await navigator.clipboard.writeText(text);
       setCopyStatus({ ...copyStatus, [id]: true });
       setTimeout(() => setCopyStatus({ ...copyStatus, [id]: false }), 2000);
-    } catch (err) {
-      console.error('Failed to copy!', err);
-    }
+    } catch (err) { console.error('Failed to copy!', err); }
   };
 
-  const resetForm = () => {
-    setFormData(initialData);
-  };
+  const resetForm = () => setFormData(initialData);
 
   const getComplexityDesc = (val: number) => {
-    if (val < 33) return "مبسط - تركيز على المفاهيم الأساسية والوضوح المباشر وتجنب التعقيدات التقنية.";
-    if (val < 66) return "متوازن - تحليل متوسط مع تفاصيل تقنية معقولة ومناسبة للجمهور المهني.";
-    return "متقدم - تعمق تقني عالٍ، تحليل نقدي مكثف، ومعالجة شاملة لأدق التفاصيل العلمية.";
+    if (val < 33) return "مبسط - تركيز على الوضوح المباشر والمفاهيم الأساسية.";
+    if (val < 66) return "متوازن - تحليل مهني يجمع بين العمق وسهولة الاستيعاب.";
+    return "متقدم - تعمق تقني عالٍ، معالجة شاملة، وتحليل نقدي مكثف.";
   };
+
+  const formatCategories = [
+    { label: 'نصي وتخطيطي', formats: ['heading', 'paragraph', 'list'] as OutputFormatType[] },
+    { label: 'تقني ومرئي', formats: ['code', 'diagram', 'math', 'table'] as OutputFormatType[] },
+    { label: 'أكاديمي ومرجعي', formats: ['citation'] as OutputFormatType[] }
+  ];
 
   const getIcon = (iconName: string) => {
     switch(iconName) {
@@ -136,232 +133,168 @@ const App: React.FC = () => {
     }
   };
 
-  const formatCategories = [
-    { label: 'نصي وتخطيطي', formats: ['toc', 'heading', 'paragraph', 'list'] as OutputFormatType[] },
-    { label: 'تقني ومرئي', formats: ['code', 'diagram', 'math', 'table'] as OutputFormatType[] },
-    { label: 'أكاديمي ومرجعي', formats: ['citation'] as OutputFormatType[] }
-  ];
-
-  const toggleCategory = (label: string) => {
-    setExpandedCategories(prev => ({ ...prev, [label]: !prev[label] }));
-  };
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center p-4 md:p-8">
       <header className="w-full max-w-7xl flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <div className="text-right w-full md:w-auto">
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">مهندس البرومبت المتقدم <span className="text-blue-600">v2.4</span></h1>
-          <p className="text-slate-500 mt-1 text-lg">نظام بناء الأوامر الذكي المعتمد على خوارزميات التفكير المنطقي</p>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">مهندس البرومبت المتقدم <span className="text-blue-600">v3.0</span></h1>
+          <p className="text-slate-500 mt-1 text-lg">نظام بناء الأوامر الذكي المعتمد على خوارزميات السياق العميق</p>
         </div>
         <div className="flex gap-3">
-          <button 
-            onClick={resetForm}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all shadow-sm active:scale-95"
-          >
-            <RotateCcw size={18} />
-            تصفير النموذج
+          <button onClick={resetForm} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all shadow-sm active:scale-95">
+            <RotateCcw size={18} /> تصفير النموذج
           </button>
         </div>
       </header>
 
-      {/* Template Browser Section */}
+      {/* Templates Section */}
       <section className="w-full max-w-7xl mb-12">
         <div className="flex items-center justify-between mb-4 px-2">
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <Layout className="text-blue-600" size={20} />
-            تصفح القوالب الجاهزة
+            <Layout className="text-blue-600" size={20} /> تصفح القوالب الذكية
           </h2>
-          <span className="text-xs text-slate-400 font-medium">اختر قالباً للبدء بسرعة</span>
         </div>
-        <div className="relative group">
-          <div className="flex overflow-x-auto gap-4 pb-4 px-2 no-scrollbar scroll-smooth">
-            {PRESET_TEMPLATES.map((template) => (
-              <button
-                key={template.id}
-                onClick={() => applyTemplate(template)}
-                className="flex-shrink-0 w-64 p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md hover:border-blue-200 transition-all text-right flex flex-col gap-3 group/card"
-              >
-                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl w-fit group-hover/card:bg-blue-600 group-hover/card:text-white transition-colors">
-                  {getIcon(template.icon)}
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-800 text-sm mb-1">{template.title}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{template.description}</p>
-                </div>
-              </button>
-            ))}
-          </div>
+        <div className="flex overflow-x-auto gap-4 pb-4 px-2 no-scrollbar scroll-smooth">
+          {PRESET_TEMPLATES.map((template) => (
+            <button key={template.id} onClick={() => applyTemplate(template)} className="flex-shrink-0 w-64 p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md hover:border-blue-200 transition-all text-right flex flex-col gap-3 group">
+              <div className="p-3 bg-blue-50 text-blue-600 rounded-xl w-fit group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                {getIcon(template.icon)}
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 text-sm mb-1">{template.title}</h3>
+                <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{template.description}</p>
+              </div>
+            </button>
+          ))}
         </div>
       </section>
 
       <main className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <section className="lg:col-span-7 space-y-6">
           
-          {/* Section 1: Project Info */}
+          {/* Core Project Info */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-4">
             <h2 className="flex items-center gap-2 text-xl font-semibold text-slate-800 mb-4 border-r-4 border-blue-600 pr-3">
-              <FileText className="text-blue-600" size={22} />
-              جوهر المشروع
+              <FileText className="text-blue-600" size={22} /> جوهر المشروع
             </h2>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-slate-600">اسم المشروع</label>
-                <input type="text" name="projectName" value={formData.projectName} onChange={handleInputChange} placeholder="مثال: تحليل البيانات الكمية" className="input-field" />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-slate-600">نوع المستند</label>
-                <input type="text" name="documentType" value={formData.documentType} onChange={handleInputChange} placeholder="تقرير، خوارزمية، مقال..." className="input-field" />
-              </div>
+              <input type="text" name="projectName" value={formData.projectName} onChange={handleInputChange} placeholder="اسم المشروع" className="input-field" />
+              <input type="text" name="documentType" value={formData.documentType} onChange={handleInputChange} placeholder="نوع المستند المستهدف" className="input-field" />
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-slate-600 flex items-center gap-2">
-                  <LinkIcon size={14} className="text-slate-400" />
-                  رابط المرجع (اختياري)
-                </label>
-                <input type="url" name="projectUrl" value={formData.projectUrl} onChange={handleInputChange} placeholder="https://example.com" className="input-field" />
+              <div className="relative">
+                <LinkIcon size={16} className="absolute right-3 top-3.5 text-slate-400" />
+                <input type="url" name="projectUrl" value={formData.projectUrl} onChange={handleInputChange} placeholder="رابط المرجع (اختياري)" className="input-field pr-10" />
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-slate-600 flex items-center gap-2">
-                  <Globe size={14} className="text-slate-400" />
-                  اللغة المستهدفة
-                </label>
-                <select name="language" value={formData.language} onChange={handleInputChange} className="input-field">
-                  <option value="Default">تلقائي (Default)</option>
-                  <option value="Arabic">العربية (Arabic)</option>
-                  <option value="English">الإنجليزية (English)</option>
-                  <option value="French">الفرنسية (French)</option>
-                  <option value="German">الألمانية (German)</option>
+              <div className="relative">
+                <Globe size={16} className="absolute right-3 top-3.5 text-slate-400" />
+                <select name="language" value={formData.language} onChange={handleInputChange} className="input-field pr-10 appearance-none">
+                  <option value="Default">اللغة: تلقائي</option>
+                  <option value="Arabic">اللغة: العربية</option>
+                  <option value="English">اللغة: الإنجليزية</option>
                 </select>
               </div>
             </div>
-
-            <textarea name="projectDescription" value={formData.projectDescription} onChange={handleInputChange} rows={2} placeholder="صف الغرض الأساسي من الطلب..." className="input-field resize-none" />
-
+            <textarea name="projectDescription" value={formData.projectDescription} onChange={handleInputChange} rows={2} placeholder="صف الغرض الأساسي والنتائج المتوقعة..." className="input-field resize-none" />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <input type="text" name="specialization" value={formData.specialization} onChange={handleInputChange} placeholder="التخصص الدقيق" className="input-field" />
               <input type="text" name="educationalLevel" value={formData.educationalLevel} onChange={handleInputChange} placeholder="المستوى الدراسي" className="input-field" />
-              <input type="text" name="university" value={formData.university} onChange={handleInputChange} placeholder="الجامعة / المؤسسة" className="input-field" />
+              <input type="text" name="university" value={formData.university} onChange={handleInputChange} placeholder="الجامعة" className="input-field" />
             </div>
           </div>
 
-          {/* Logic & Complexity Section */}
+          {/* Precision Controls (The "Intelligence" Part) */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6">
             <h2 className="flex items-center gap-2 text-xl font-semibold text-slate-800 mb-4 border-r-4 border-indigo-600 pr-3">
-              <BrainCircuit className="text-indigo-600" size={22} />
-              بروتوكولات التفكير والتعقيد
+              <Zap className="text-indigo-600" size={22} /> ضوابط الدقة المتقدمة
             </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-500 flex items-center gap-1"><Award size={14} /> مستوى الأقدمية (Seniority)</label>
+                <select name="seniorityLevel" value={formData.seniorityLevel} onChange={handleInputChange} className="input-field">
+                  <option value="Junior">Junior (منفذ)</option>
+                  <option value="Mid-Level">Mid-Level (مهني)</option>
+                  <option value="Senior">Senior (مستشار)</option>
+                  <option value="Principal/Expert">Principal (خبير تقني)</option>
+                  <option value="Strategic Lead">Strategic Lead (قائد استراتيجي)</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-500 flex items-center gap-1"><Layers size={14} /> عمق التحليل المطلوب</label>
+                <select name="analysisDepth" value={formData.analysisDepth} onChange={handleInputChange} className="input-field">
+                  <option value="Surface">Surface (موجز سريع)</option>
+                  <option value="Comprehensive">Comprehensive (شامل)</option>
+                  <option value="Deep-Dive">Deep-Dive (تعمق فني)</option>
+                  <option value="Atomic/Extremely Detailed">Atomic (تفصيلي متناهي)</option>
+                </select>
+              </div>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-slate-600">إطار التفكير (Reasoning)</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-500 flex items-center gap-1"><MessageSquare size={14} /> أسلوب التواصل</label>
+                <select name="communicationStyle" value={formData.communicationStyle} onChange={handleInputChange} className="input-field">
+                  <option value="Direct">Direct (مباشر)</option>
+                  <option value="Narrative">Narrative (سردي)</option>
+                  <option value="Technical">Technical (تقني دقيق)</option>
+                  <option value="Persuasive">Persuasive (إقناعي)</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-500 flex items-center gap-1"><BrainCircuit size={14} /> إطار التفكير</label>
                 <select name="reasoningFramework" value={formData.reasoningFramework} onChange={handleInputChange} className="input-field">
-                  <option value="Standard">Standard (مباشر)</option>
-                  <option value="Chain of Thought">Chain of Thought (سلسلة أفكار)</option>
-                  <option value="Step-by-Step">Step-by-Step (خطوة بخطوة)</option>
-                  <option value="First Principles">First Principles (المبادئ الأولى)</option>
-                  <option value="Socratic">Socratic (المنهج السقراطي)</option>
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-slate-600">مستوى الجمهور المستهدف</label>
-                <select name="audienceLevel" value={formData.audienceLevel} onChange={handleInputChange} className="input-field">
-                  <option value="Beginner">مبتدئ (تبسيط شديد)</option>
-                  <option value="Student">طالب (توضيح المفاهيم)</option>
-                  <option value="Professional">مهني (تركيز على العمل)</option>
-                  <option value="Expert/Researcher">خبير / باحث (تعمق تقني)</option>
-                  <option value="Executive">تنفيذي (ملخصات واضحة)</option>
+                  <option value="Standard">Standard</option>
+                  <option value="Chain of Thought">Chain of Thought</option>
+                  <option value="First Principles">First Principles</option>
+                  <option value="Socratic">Socratic</option>
                 </select>
               </div>
             </div>
 
-            <div className="flex flex-col gap-4 bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100 shadow-inner">
-               <div className="flex justify-between items-center mb-1">
-                  <label className="text-sm font-bold text-indigo-900">درجة التعقيد الفني</label>
-                  <span className="text-xs font-black text-white bg-indigo-600 px-3 py-1 rounded-full shadow-sm">{formData.complexity}%</span>
+            <div className="flex flex-col gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100 shadow-inner">
+               <div className="flex justify-between items-center">
+                  <label className="text-sm font-bold text-slate-700">درجة التعقيد الفني</label>
+                  <span className="text-xs font-black text-white bg-slate-900 px-3 py-1 rounded-full shadow-sm">{formData.complexity}%</span>
                </div>
-               <input 
-                  type="range"
-                  name="complexity"
-                  min="0"
-                  max="100"
-                  value={formData.complexity}
-                  onChange={handleInputChange}
-                  className="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                />
-                <div className="bg-white/80 p-3 rounded-xl border border-indigo-100 shadow-sm animate-in fade-in duration-300">
-                  <p className="text-xs text-indigo-700 font-bold leading-relaxed flex items-center gap-2">
-                    <HelpCircle size={14} className="text-indigo-400" />
-                    {getComplexityDesc(formData.complexity)}
-                  </p>
+               <input type="range" name="complexity" min="0" max="100" value={formData.complexity} onChange={handleInputChange} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+               <p className="text-xs text-slate-500 font-medium italic">{getComplexityDesc(formData.complexity)}</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label className="flex items-center gap-3 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 cursor-pointer group hover:bg-indigo-50 transition-colors">
+                <input type="checkbox" name="logicalFallacyCheck" checked={formData.logicalFallacyCheck} onChange={handleInputChange} className="w-5 h-5 accent-indigo-600" />
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold text-indigo-900 flex items-center gap-1"><Scale size={14}/> فحص المغالغاطات المنطقية</span>
+                  <span className="text-[10px] text-indigo-700">تنبيه الذكاء الاصطناعي لمراجعة صحة منطقه</span>
                 </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-slate-600">معالجة الحقائق</label>
-                <select name="knowledgeHandling" value={formData.knowledgeHandling} onChange={handleInputChange} className="input-field">
-                  <option value="Standard">معياري</option>
-                  <option value="Strict (No Hallucination)">صارم (منع الهلوسة)</option>
-                  <option value="Creative Synthesis">تأليف إبداعي</option>
-                </select>
-              </div>
-              <div className="flex items-center gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <input type="checkbox" name="outputVerification" checked={formData.outputVerification} onChange={handleInputChange} className="w-5 h-5 accent-indigo-600 cursor-pointer" id="chk-verify" />
-                <label htmlFor="chk-verify" className="text-sm font-medium text-slate-700 cursor-pointer flex flex-col">
-                  تفعيل المراجعة الذاتية (Self-Verification)
-                  <span className="text-xs text-slate-500 font-normal">سيقوم الذكاء الاصطناعي بمراجعة إجابته قبل عرضها</span>
-                </label>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-slate-600 flex items-center gap-2">
-                <Target size={16} className="text-red-500" />
-                معايير نجاح المخرج
               </label>
-              <input type="text" name="successCriteria" value={formData.successCriteria} onChange={handleInputChange} placeholder="مثال: أن تكون الخطة قابلة للتنفيذ..." className="input-field" />
+              <label className="flex items-center gap-3 p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100 cursor-pointer group hover:bg-emerald-50 transition-colors">
+                <input type="checkbox" name="outputVerification" checked={formData.outputVerification} onChange={handleInputChange} className="w-5 h-5 accent-emerald-600" />
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold text-emerald-900 flex items-center gap-1"><ShieldCheck size={14}/> تفعيل المراجعة الذاتية</span>
+                  <span className="text-[10px] text-emerald-700">إلزام النموذج بالتدقيق قبل الإخراج</span>
+                </div>
+              </label>
             </div>
           </div>
 
-          {/* Section: Personas & Constraints */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6">
-            <h2 className="flex items-center gap-2 text-xl font-semibold text-slate-800 border-r-4 border-emerald-600 pr-3">
-              <Settings className="text-emerald-600" size={22} />
-              السلوكيات والقيود
-            </h2>
-
-            <MultiInputSection title="السلوكيات (Behaviors)" items={formData.behaviors} onAdd={(val) => addListItem('behaviors', val)} onRemove={(idx) => removeListItem('behaviors', idx)} icon={<User size={18} className="text-emerald-500" />} placeholder="دقيق، تحليلي، نقدي..." />
-            <MultiInputSection title="قواعد إجبارية" items={formData.mandatoryRules} onAdd={(val) => addListItem('mandatoryRules', val)} onRemove={(idx) => removeListItem('mandatoryRules', idx)} icon={<ShieldCheck size={18} className="text-orange-500" />} placeholder="إلزامي: استخدم المصادر الرسمية..." />
-            <MultiInputSection title="محظورات (Constraints)" items={formData.constraints} onAdd={(val) => addListItem('constraints', val)} onRemove={(idx) => removeListItem('constraints', idx)} icon={<Trash2 size={18} className="text-red-500" />} placeholder="تجنب: استخدام الاختصارات..." />
-          </div>
-
-          {/* Grouped Output Formats Section */}
+          {/* Grouped Output Formats */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6">
             <h2 className="flex items-center gap-2 text-xl font-semibold text-slate-800 border-r-4 border-amber-600 pr-3">
-              <Layout className="text-amber-600" size={22} />
-              هيكلية المخرجات
+              <Layout className="text-amber-600" size={22} /> هيكلية المخرجات
             </h2>
-
-            <div className="space-y-4">
+            <div className="space-y-3">
               {formatCategories.map((cat) => (
                 <div key={cat.label} className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
-                  <button 
-                    onClick={() => toggleCategory(cat.label)}
-                    className="w-full flex items-center justify-between p-4 bg-slate-50/50 hover:bg-slate-50 transition-colors"
-                  >
-                    <h3 className="text-sm font-bold text-slate-700 uppercase tracking-widest">{cat.label}</h3>
-                    {expandedCategories[cat.label] ? <ChevronUp size={18} className="text-slate-400" /> : <ChevronDown size={18} className="text-slate-400" />}
+                  <button onClick={() => setExpandedCategories(p => ({...p, [cat.label]: !p[cat.label]}))} className="w-full flex items-center justify-between p-4 bg-slate-50/50 hover:bg-slate-50 transition-all">
+                    <h3 className="text-xs font-bold text-slate-600 uppercase tracking-widest">{cat.label}</h3>
+                    {expandedCategories[cat.label] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </button>
-                  
                   {expandedCategories[cat.label] && (
-                    <div className="p-4 flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                    <div className="p-4 flex flex-wrap gap-2 animate-in fade-in duration-300">
                       {cat.formats.map(format => (
-                        <button key={format} onClick={() => toggleOutputFormat(format)} className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all flex items-center gap-2 ${formData.outputFormats.includes(format) ? 'bg-amber-600 border-amber-600 text-white shadow-md' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'}`}>
-                          {format === 'toc' && 'جدول المحتويات'}
+                        <button key={format} onClick={() => toggleOutputFormat(format)} className={`px-4 py-2 rounded-xl border text-xs font-bold transition-all flex items-center gap-2 ${formData.outputFormats.includes(format) ? 'bg-amber-600 border-amber-600 text-white shadow-md scale-105' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'}`}>
                           {format === 'heading' && 'عناوين'}
                           {format === 'paragraph' && 'فقرات'}
                           {format === 'list' && 'قوائم'}
@@ -370,7 +303,7 @@ const App: React.FC = () => {
                           {format === 'diagram' && 'رسومات'}
                           {format === 'math' && 'معادلات'}
                           {format === 'citation' && 'اقتباسات'}
-                          {formData.outputFormats.includes(format) && <Check size={14} />}
+                          {formData.outputFormats.includes(format) && <Check size={12} />}
                         </button>
                       ))}
                     </div>
@@ -378,141 +311,60 @@ const App: React.FC = () => {
                 </div>
               ))}
             </div>
-
-            {/* Dynamic Fields Based on Selections */}
-            <div className="space-y-4">
-              {formData.outputFormats.includes('toc') && (
-                <div className="flex flex-col gap-1 p-4 bg-amber-50 rounded-2xl border border-amber-100 animate-in zoom-in duration-300">
-                  <label className="text-sm font-bold text-amber-800 flex items-center gap-2">
-                    <ScrollText size={16} />
-                    هيكل جدول المحتويات (TOC Structure)
-                  </label>
-                  <input 
-                    type="text" 
-                    name="tocStructure"
-                    value={formData.tocStructure}
-                    onChange={handleInputChange}
-                    placeholder="مثال: مقدمة، الفصل الأول، النتائج، الخاتمة..."
-                    className="input-field border-amber-200 focus:ring-amber-500 mt-1"
-                  />
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-slate-600">نمط الاقتباس</label>
-                  <select name="citationStyle" value={formData.citationStyle} onChange={handleInputChange} className="input-field">
-                    <option>APA (7th Edition)</option>
-                    <option>MLA (9th Edition)</option>
-                    <option>Chicago Style</option>
-                    <option>Harvard</option>
-                    <option>IEEE</option>
-                    <option>Vancouver</option>
-                  </select>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-slate-600">نبرة الصوت</label>
-                  <input type="text" name="tone" value={formData.tone} onChange={handleInputChange} placeholder="Professional, Creative..." className="input-field" />
-                </div>
-              </div>
-
-              <textarea name="includedTopics" value={formData.includedTopics} onChange={handleInputChange} rows={3} placeholder="المواضيع المحددة (سطر لكل موضوع)..." className="input-field resize-none" />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-4">
-                  {formData.outputFormats.includes('diagram') && (
-                    <div className="flex flex-col gap-1 animate-in slide-in-from-right duration-300">
-                      <label className="text-sm font-bold text-amber-700">نوع الرسم البياني</label>
-                      <input 
-                        type="text" 
-                        name="diagramType"
-                        value={formData.diagramType}
-                        onChange={handleInputChange}
-                        placeholder="UML Class, Flowchart..."
-                        className="input-field border-amber-200"
-                      />
-                    </div>
-                  )}
-                  <input type="text" name="wordCount" value={formData.wordCount} onChange={handleInputChange} placeholder="الطول المستهدف" className="input-field" />
-                </div>
-                <div className="flex flex-col gap-4">
-                  <div className="flex p-1 bg-slate-100 rounded-lg gap-1">
-                    {(['Informal', 'Balanced', 'Very Formal'] as FormalityLevel[]).map(level => (
-                      <button key={level} onClick={() => setFormData(prev => ({ ...prev, formality: level }))} className={`flex-1 py-1.5 px-3 rounded-md text-xs font-bold transition-all ${formData.formality === level ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
-                        {level === 'Informal' ? 'غير رسمي' : level === 'Balanced' ? 'متوازن' : 'رسمي جداً'}
-                      </button>
-                    ))}
-                  </div>
-                  {formData.outputFormats.includes('code') && (
-                    <div className="flex flex-col gap-1 animate-in slide-in-from-right duration-300">
-                      <label className="text-sm font-bold text-slate-600">لغة البرمجة</label>
-                      <input type="text" name="programmingLanguage" value={formData.programmingLanguage} onChange={handleInputChange} placeholder="Python, JS..." className="input-field" />
-                    </div>
-                  )}
-                </div>
-              </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {formData.outputFormats.includes('diagram') && <input type="text" name="diagramType" value={formData.diagramType} onChange={handleInputChange} placeholder="نوع الرسم (UML, Flowchart...)" className="input-field border-amber-200" />}
+              {formData.outputFormats.includes('code') && <input type="text" name="programmingLanguage" value={formData.programmingLanguage} onChange={handleInputChange} placeholder="لغة البرمجة (Python, TS...)" className="input-field border-blue-200" />}
             </div>
           </div>
+
+          {/* Rules & Constraints */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6">
+            <h2 className="flex items-center gap-2 text-xl font-semibold text-slate-800 border-r-4 border-emerald-600 pr-3">
+              <Settings className="text-emerald-600" size={22} /> السلوكيات والقيود
+            </h2>
+            <MultiInputSection title="سلوكيات الشخصية (Behaviors)" items={formData.behaviors} onAdd={(val) => addListItem('behaviors', val)} onRemove={(idx) => removeListItem('behaviors', idx)} icon={<User size={18} className="text-emerald-500" />} placeholder="دقيق، تحليلي..." />
+            <MultiInputSection title="قواعد إجبارية" items={formData.mandatoryRules} onAdd={(val) => addListItem('mandatoryRules', val)} onRemove={(idx) => removeListItem('mandatoryRules', idx)} icon={<ShieldCheck size={18} className="text-orange-500" />} placeholder="يجب ذكر الأرقام..." />
+            <MultiInputSection title="محظورات صارمة" items={formData.constraints} onAdd={(val) => addListItem('constraints', val)} onRemove={(idx) => removeListItem('constraints', idx)} icon={<Trash2 size={18} className="text-red-500" />} placeholder="تجنب المصطلحات العامية..." />
+          </div>
+
         </section>
 
-        {/* Output Preview Section */}
-        <aside className="lg:col-span-5 lg:sticky lg:top-8 space-y-6 h-fit">
+        {/* Output Preview */}
+        <aside className="lg:col-span-5 lg:sticky lg:top-8 h-fit space-y-6">
           <div className="bg-slate-900 text-white rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[750px] border border-slate-700">
             <div className="p-5 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-red-500"></div>
                 <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                 <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                <h3 className="mr-3 text-sm font-bold tracking-widest text-slate-400">ENGINE_OUTPUT_PREVIEW</h3>
+                <h3 className="mr-3 text-sm font-bold tracking-widest text-slate-400">ENGINE_v3_PROMPT</h3>
               </div>
             </div>
-
             <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-dark">
               <PromptBox title="SYSTEM_INSTRUCTIONS" content={prompt.systemInstructions} color="text-blue-400" bgColor="bg-blue-500/10" onCopy={() => copyToClipboard(prompt.systemInstructions, 'sys')} isCopied={copyStatus['sys']} />
               <PromptBox title="USER_PROMPT" content={prompt.userPrompt} color="text-emerald-400" bgColor="bg-emerald-500/10" onCopy={() => copyToClipboard(prompt.userPrompt, 'user')} isCopied={copyStatus['user']} />
             </div>
-
-            <div className="p-5 bg-slate-800/80 border-t border-slate-700 flex gap-3">
-               <button onClick={() => copyToClipboard(`${prompt.systemInstructions}\n\n--- USER PROMPT ---\n\n${prompt.userPrompt}`, 'all')} className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95">
+            <div className="p-5 bg-slate-800/80 border-t border-slate-700">
+               <button onClick={() => copyToClipboard(`${prompt.systemInstructions}\n\n--- USER PROMPT ---\n\n${prompt.userPrompt}`, 'all')} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95">
                 {copyStatus['all'] ? <Check size={20} /> : <Copy size={20} />}
-                {copyStatus['all'] ? 'تم النسخ بنجاح' : 'نسخ التعليمات والبرومبت'}
+                {copyStatus['all'] ? 'تم نسخ كل شيء' : 'نسخ كامل للتعليمات والبرومبت'}
               </button>
             </div>
           </div>
-
-          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
-             <div className="flex gap-4">
-                <div className="p-2 bg-blue-50 rounded-xl h-fit">
-                   <HelpCircle className="text-blue-600" size={24} />
-                </div>
-                <div>
-                  <h4 className="font-bold text-slate-800 text-sm">كيفية الاستخدام الفعّال</h4>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    1. استخدم <b>SYSTEM_INSTRUCTIONS</b> لتحديد "شخصية" الذكاء الاصطناعي في الإعدادات المتقدمة.<br/>
-                    2. أرسل <b>USER_PROMPT</b> كبداية للمحادثة للحصول على أدق النتائج.<br/>
-                    3. التزم باستخدام Mermaid لتوليد الرسوم البيانية داخل البرومبت.
-                  </p>
-                </div>
+          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex gap-4">
+             <div className="p-2 bg-blue-50 rounded-xl h-fit"><HelpCircle className="text-blue-600" size={24} /></div>
+             <div>
+               <h4 className="font-bold text-slate-800 text-sm">التوافق</h4>
+               <p className="text-xs text-slate-500 mt-1 leading-relaxed">هذه الخوارزمية محسنة خصيصاً للنماذج ذات القدرات العالية مثل GPT-4o و Claude 3.5 Sonnet و Gemini 1.5 Pro.</p>
              </div>
           </div>
         </aside>
       </main>
       
       <style>{`
-        .input-field {
-          width: 100%;
-          padding: 0.75rem;
-          border-radius: 1rem;
-          border: 1px solid #e2e8f0;
-          background-color: #fff;
-          font-size: 0.875rem;
-          transition: all 0.2s;
-        }
-        .input-field:focus {
-          outline: none;
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-        }
+        .input-field { width: 100%; padding: 0.85rem 1rem; border-radius: 1rem; border: 1px solid #e2e8f0; background-color: #fff; font-size: 0.875rem; transition: all 0.2s; color: #1e293b; font-weight: 500; }
+        .input-field:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08); }
         .scrollbar-dark::-webkit-scrollbar { width: 6px; }
         .scrollbar-dark::-webkit-scrollbar-track { background: #0f172a; }
         .scrollbar-dark::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
@@ -523,7 +375,6 @@ const App: React.FC = () => {
   );
 };
 
-// Prompt Box Component
 const PromptBox = ({ title, content, color, bgColor, onCopy, isCopied }: any) => (
   <div className="space-y-3 group">
     <div className="flex justify-between items-center">
@@ -532,30 +383,26 @@ const PromptBox = ({ title, content, color, bgColor, onCopy, isCopied }: any) =>
         {isCopied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
       </button>
     </div>
-    <div className={`${bgColor} p-5 rounded-2xl border border-white/5 text-sm leading-relaxed whitespace-pre-wrap font-mono text-slate-200 min-h-[100px] shadow-inner`}>
-      {content || 'بانتظار المدخلات...'}
+    <div className={`${bgColor} p-5 rounded-2xl border border-white/5 text-[13px] leading-relaxed whitespace-pre-wrap font-mono text-slate-300 min-h-[80px] shadow-inner`}>
+      {content || 'جاري بناء الخوارزمية...'}
     </div>
   </div>
 );
 
-// Multi Input Section Component
 const MultiInputSection = ({ title, items, onAdd, onRemove, icon, placeholder }: any) => {
   const [val, setVal] = useState('');
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2 mb-1">
-        {icon}
-        <label className="text-sm font-semibold text-slate-700">{title}</label>
-      </div>
+      <div className="flex items-center gap-2 mb-1">{icon}<label className="text-sm font-semibold text-slate-700">{title}</label></div>
       <div className="flex gap-2">
         <input type="text" value={val} onChange={(e) => setVal(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (onAdd(val), setVal(''))} placeholder={placeholder} className="input-field" />
         <button onClick={() => { onAdd(val); setVal(''); }} className="p-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors shadow-lg"><Plus size={18} /></button>
       </div>
       <div className="flex flex-wrap gap-2">
         {items.map((item: string, i: number) => (
-          <div key={i} className="flex items-center gap-2 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-xl text-xs text-blue-800 animate-in zoom-in duration-200 group">
+          <div key={i} className="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl text-[11px] font-bold text-slate-700 group">
             <span>{item}</span>
-            <button onClick={() => onRemove(i)} className="text-blue-300 hover:text-red-500 transition-colors"><Trash2 size={12} /></button>
+            <button onClick={() => onRemove(i)} className="text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={12} /></button>
           </div>
         ))}
       </div>

@@ -9,12 +9,13 @@ export type OutputFormatType =
   | 'code' 
   | 'diagram' 
   | 'math'
-  | 'citation'
-  | 'toc';
+  | 'citation';
 
 export type ReasoningFramework = 'Standard' | 'Chain of Thought' | 'Step-by-Step' | 'First Principles' | 'Socratic';
 
 export type AudienceLevel = 'Beginner' | 'Student' | 'Professional' | 'Expert/Researcher' | 'Executive';
+
+export type SeniorityLevel = 'Junior' | 'Mid-Level' | 'Senior' | 'Principal/Expert' | 'Strategic Lead';
 
 export interface ProjectData {
   projectName: string;
@@ -44,7 +45,11 @@ export interface ProjectData {
   outputVerification: boolean;
   successCriteria: string;
   knowledgeHandling: 'Standard' | 'Strict (No Hallucination)' | 'Creative Synthesis';
-  tocStructure: string; // New field for Table of Contents structure
+  // الحقول الجديدة لزيادة الدقة
+  seniorityLevel: SeniorityLevel;
+  analysisDepth: 'Surface' | 'Comprehensive' | 'Deep-Dive' | 'Atomic/Extremely Detailed';
+  communicationStyle: 'Direct' | 'Narrative' | 'Technical' | 'Persuasive';
+  logicalFallacyCheck: boolean;
 }
 
 export interface GeneratedPrompt {

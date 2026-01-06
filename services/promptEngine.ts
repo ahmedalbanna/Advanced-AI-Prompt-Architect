@@ -2,136 +2,103 @@
 import { ProjectData, GeneratedPrompt } from '../types';
 
 export const generatePrompt = (data: ProjectData): GeneratedPrompt => {
-  // --- بناء تعليمات النظام (SYSTEM INSTRUCTIONS) ---
   let systemParts: string[] = [];
   
-  // 1. تعريف الهوية المعقدة (Persona & Identity)
+  // 1. بروتوكول الهوية المتقدم (Advanced Identity Protocol)
   const behaviorsStr = data.behaviors.length > 0 
     ? ` \n- ${data.behaviors.join('\n- ')}` 
-    : 'Professional Academic Consultant';
+    : 'Professional Subject Matter Expert';
 
   systemParts.push(`[IDENTITY_PROTOCOL]
-You are a top-tier ${data.specialization || 'domain expert'} with the following operational behaviors:${behaviorsStr}
-You prioritize accuracy, depth, and adherence to established methodologies.`);
+You are a ${data.seniorityLevel} in the field of ${data.specialization || 'Professional Consulting'}.
+Operational Role: You are not just a chatbot; you are a high-level advisor with the following behaviors:${behaviorsStr}
+Quality Mandate: Your work must reflect the depth expected from someone with 10+ years of experience in ${data.specialization || 'the field'}.`);
 
-  // 2. بروتوكول التفكير (Reasoning Framework)
+  // 2. بروتوكول التفكير والتحليل (Analytical Protocol)
+  const analysisDepthMap = {
+    'Surface': 'Provide quick, high-level summaries without deep technical jargon.',
+    'Comprehensive': 'Deliver balanced insights covering both breadth and depth.',
+    'Deep-Dive': 'Explore nuances, edge cases, and historical/theoretical foundations of every concept mentioned.',
+    'Atomic/Extremely Detailed': 'Deconstruct every component to its smallest parts. No detail is too small to be analyzed.'
+  };
+
   const reasoningMap = {
-    'Standard': 'Provide direct and concise analytical responses.',
-    'Chain of Thought': 'Before providing the final answer, break down the problem into logical steps and articulate your internal reasoning process.',
-    'Step-by-Step': 'Guide the user through the solution incrementally, ensuring each step is verified before proceeding.',
-    'First Principles': 'Deconstruct the topic to its fundamental truths and reconstruct the answer from the ground up, avoiding common assumptions.',
-    'Socratic': 'Do not provide direct answers immediately; lead the user through guided questioning and critical analysis.'
+    'Standard': 'Provide direct analytical responses.',
+    'Chain of Thought': 'Articulate your internal reasoning process step-by-step before arriving at the conclusion.',
+    'Step-by-Step': 'Guide the user through the logic incrementally.',
+    'First Principles': 'Strip away assumptions and rebuild the logic from fundamental truths.',
+    'Socratic': 'Lead the user to the answer through insightful questioning.'
   };
 
   systemParts.push(`[COGNITIVE_FRAMEWORK]
-Framework: ${data.reasoningFramework}
-Instruction: ${reasoningMap[data.reasoningFramework]}`);
+Analysis Depth: ${data.analysisDepth} (${analysisDepthMap[data.analysisDepth]})
+Reasoning Mode: ${data.reasoningFramework} (${reasoningMap[data.reasoningFramework]})
+${data.logicalFallacyCheck ? 'Strict Mandate: Audit your response for logical fallacies (e.g., circular reasoning, straw man, false dilemma) before finalizing output.' : ''}`);
 
-  // 3. معايير الجمهور واللغة (Audience & Linguistics)
-  const formalityDesc = {
-    'Informal': 'natural, approachable, and conversational',
-    'Balanced': 'semi-formal, clear, and professional',
-    'Very Formal': 'strictly academic, sophisticated, and rigorous'
+  // 3. أسلوب التواصل (Communication Protocol)
+  const styleMap = {
+    'Direct': 'Concise, action-oriented, and devoid of fluff.',
+    'Narrative': 'Story-driven, engaging, and flows like a professional discourse.',
+    'Technical': 'Heavy on precision, industry terminology, and data-driven insights.',
+    'Persuasive': 'Focused on logic-driven persuasion, addressing counter-arguments, and building a solid case.'
   };
 
   systemParts.push(`[COMMUNICATION_STANDARDS]
-- Target Audience: ${data.audienceLevel} (Tailor depth and vocabulary accordingly).
-- Language: ${data.language === 'Default' ? 'Arabic/English contextual' : data.language}.
-- Formality: ${formalityDesc[data.formality]}.
-- Tone: ${data.tone}.
-- Educational Context: ${data.educationalLevel} level at ${data.university || 'Global Academic Institutions'}.`);
+- Primary Style: ${styleMap[data.communicationStyle]}
+- Formality: ${data.formality}
+- Tone: ${data.tone}
+- Language: ${data.language}
+- Audience Compatibility: Tailor all concepts for an "${data.audienceLevel}" level.`);
 
-  // 4. دقة البيانات ومعالجة المعرفة (Knowledge Handling)
-  const knowledgeMap = {
-    'Standard': 'Use the most up-to-date data available within your training.',
-    'Strict (No Hallucination)': 'Crucial: If a fact is not verifiable or outside your scope, state so clearly. Do not invent citations or data.',
-    'Creative Synthesis': 'Synthesize existing knowledge to generate novel insights while maintaining logical consistency.'
-  };
-
-  systemParts.push(`[KNOWLEDGE_PROTOCOL]
-Mode: ${data.knowledgeHandling}
-Guideline: ${knowledgeMap[data.knowledgeHandling]}`);
-
-  // 5. إرشادات الأدوات والمنهجية (Tool & Methodology Guidance)
-  if (data.specialization || data.programmingLanguage) {
-    systemParts.push(`[TOOL_USAGE_PROTOCOL]
-When providing technical solutions:
-- Use industry-standard libraries and frameworks applicable to ${data.specialization || 'the current context'}.
-- Ensure code follows best practices for ${data.programmingLanguage || 'the selected language'}.
-- Reference official documentation where applicable.`);
-  }
-
+  // 4. معالجة المعرفة والتحقق (Knowledge Management)
   if (data.outputVerification) {
-    systemParts.push(`[VERIFICATION_STEP]
-After generating the output, perform a self-audit to ensure all "Mandatory Rules" were followed and "Constraints" were avoided.`);
+    systemParts.push(`[QUALITY_ASSURANCE]
+Perform a post-generation self-audit:
+1. Did the output violate any "PROHIBITED" constraints?
+2. Does the output meet the defined "SUCCESS METRICS"?
+3. Is the complexity level at precisely ${data.complexity}%?`);
   }
 
-  // 6. القواعد الصارمة (Hard Constraints)
+  // 5. القواعد الصارمة
   if (data.mandatoryRules.length > 0 || data.constraints.length > 0) {
-    let constraintsSection = '[OPERATIONAL_CONSTRAINTS]\n';
+    let constraintsSection = '[OPERATIONAL_BOUNDARIES]\n';
     if (data.mandatoryRules.length > 0) {
-      constraintsSection += `MANDATORY:\n${data.mandatoryRules.map(r => `! ${r}`).join('\n')}\n`;
+      constraintsSection += `MUST ADHERE TO:\n${data.mandatoryRules.map(r => `! ${r}`).join('\n')}\n`;
     }
     if (data.constraints.length > 0) {
-      constraintsSection += `PROHIBITED:\n${data.constraints.map(c => `X ${c}`).join('\n')}`;
+      constraintsSection += `STRICTLY AVOID:\n${data.constraints.map(c => `X ${c}`).join('\n')}`;
     }
     systemParts.push(constraintsSection);
   }
 
-  // --- بناء برومبت المستخدم (USER PROMPT) ---
+  // --- بناء برومبت المستخدم ---
   let userParts: string[] = [];
+  userParts.push(`## TASK OVERVIEW: ${data.projectName || 'New Document Generation'}`);
+  userParts.push(`Generate a ${data.documentType || 'comprehensive output'} for: ${data.projectDescription || 'user requirements'}.`);
+  
+  if (data.projectUrl) userParts.push(`Reference URL for context: ${data.projectUrl}`);
 
-  // 1. المهمة والهدف (Objective)
-  userParts.push(`## OBJECTIVE: ${data.projectName || 'Task Fulfillment'}`);
-  userParts.push(`Primary Goal: Generate a ${data.documentType || 'response'} focused on: ${data.projectDescription || 'user needs'}.`);
-  if (data.projectUrl) {
-    userParts.push(`Reference URL: ${data.projectUrl}`);
-  }
-
-  // 2. نطاق المحتوى (Scope)
   if (data.includedTopics) {
-    userParts.push(`\n## TOPICS TO ADDRESS:`);
+    userParts.push(`\n## MANDATORY TOPICS:`);
     userParts.push(data.includedTopics.split('\n').map(t => `- ${t}`).join('\n'));
   }
 
-  // 3. متطلبات المخرجات (Output Structure)
-  if (data.outputFormats.length > 0) {
-    userParts.push(`\n## OUTPUT SPECIFICATIONS:`);
-    data.outputFormats.forEach(format => {
-      switch(format) {
-        case 'toc': 
-          userParts.push(`- [Navigation]: Provide a comprehensive Table of Contents at the beginning.`); 
-          if (data.tocStructure) {
-            userParts.push(`  - Preferred Structure: ${data.tocStructure}`);
-          }
-          break;
-        case 'heading': userParts.push(`- [Structure]: Use hierarchical headings.`); break;
-        case 'paragraph': userParts.push(`- [Text]: Detailed and analytical paragraphs.`); break;
-        case 'list': userParts.push(`- [Organization]: Use bullet points for key takeaways.`); break;
-        case 'table': userParts.push(`- [Tabular]: Include data tables${data.tableCaption ? ` titled "${data.tableCaption}"` : ''}.`); break;
-        case 'code': userParts.push(`- [Technical]: Provide ${data.programmingLanguage || 'documented'} code snippets.`); break;
-        case 'diagram': userParts.push(`- [Visual Architecture]: You MUST include a ${data.diagramType || 'logic'} diagram. Use Mermaid.js syntax only.`); break;
-        case 'math': userParts.push(`- [Formulaic]: Apply LaTeX notation for mathematical logic.`); break;
-        case 'citation': userParts.push(`- [Referencing]: Adhere strictly to ${data.citationStyle} format for all citations.`); break;
-      }
-    });
-  }
+  userParts.push(`\n## OUTPUT SPECIFICATIONS:`);
+  data.outputFormats.forEach(format => {
+    switch(format) {
+      case 'heading': userParts.push(`- Use semantic Markdown headers.`); break;
+      case 'paragraph': userParts.push(`- Professional ${data.communicationStyle} paragraphs.`); break;
+      case 'list': userParts.push(`- Structured lists for key insights.`); break;
+      case 'table': userParts.push(`- Data tables${data.tableCaption ? ` titled "${data.tableCaption}"` : ''}.`); break;
+      case 'code': userParts.push(`- ${data.programmingLanguage} code following clean architecture principles.`); break;
+      case 'diagram': userParts.push(`- A Mermaid.js ${data.diagramType} visual diagram.`); break;
+      case 'math': userParts.push(`- Precise LaTeX formulas.`); break;
+      case 'citation': userParts.push(`- Full ${data.citationStyle} citations.`); break;
+    }
+  });
 
-  // 4. معايير النجاح (Success Criteria)
-  if (data.successCriteria) {
-    userParts.push(`\n## SUCCESS METRICS:`);
-    userParts.push(`The response will be considered successful if: ${data.successCriteria}`);
-  }
-
-  if (data.wordCount) {
-    userParts.push(`\n## VOLUME:`);
-    userParts.push(`Approximate length: ${data.wordCount}.`);
-  }
-
-  if (data.customGuidelines) {
-    userParts.push(`\n## ADDITIONAL CONTEXT:`);
-    userParts.push(data.customGuidelines);
-  }
+  if (data.successCriteria) userParts.push(`\n## GOAL: The response is successful IF: ${data.successCriteria}`);
+  if (data.wordCount) userParts.push(`\n## SCOPE: Target around ${data.wordCount}.`);
 
   return {
     systemInstructions: systemParts.join('\n\n'),
