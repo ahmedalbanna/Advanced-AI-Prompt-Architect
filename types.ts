@@ -18,6 +18,7 @@ export type AudienceLevel = 'Beginner' | 'Student' | 'Professional' | 'Expert/Re
 export interface ProjectData {
   projectName: string;
   projectDescription: string;
+  projectUrl: string; // الحقل الجديد
   documentType: string;
   specialization: string;
   educationalLevel: string;

@@ -52,12 +52,21 @@ Instruction: ${reasoningMap[data.reasoningFramework]}`);
 Mode: ${data.knowledgeHandling}
 Guideline: ${knowledgeMap[data.knowledgeHandling]}`);
 
+  // 5. إرشادات الأدوات والمنهجية (Tool & Methodology Guidance)
+  if (data.specialization || data.programmingLanguage) {
+    systemParts.push(`[TOOL_USAGE_PROTOCOL]
+When providing technical solutions:
+- Use industry-standard libraries and frameworks applicable to ${data.specialization || 'the current context'}.
+- Ensure code follows best practices for ${data.programmingLanguage || 'the selected language'}.
+- Reference official documentation where applicable.`);
+  }
+
   if (data.outputVerification) {
     systemParts.push(`[VERIFICATION_STEP]
 After generating the output, perform a self-audit to ensure all "Mandatory Rules" were followed and "Constraints" were avoided.`);
   }
 
-  // 5. القواعد الصارمة (Hard Constraints)
+  // 6. القواعد الصارمة (Hard Constraints)
   if (data.mandatoryRules.length > 0 || data.constraints.length > 0) {
     let constraintsSection = '[OPERATIONAL_CONSTRAINTS]\n';
     if (data.mandatoryRules.length > 0) {
@@ -75,6 +84,9 @@ After generating the output, perform a self-audit to ensure all "Mandatory Rules
   // 1. المهمة والهدف (Objective)
   userParts.push(`## OBJECTIVE: ${data.projectName || 'Task Fulfillment'}`);
   userParts.push(`Primary Goal: Generate a ${data.documentType || 'response'} focused on: ${data.projectDescription || 'user needs'}.`);
+  if (data.projectUrl) {
+    userParts.push(`Reference URL: ${data.projectUrl}`);
+  }
 
   // 2. نطاق المحتوى (Scope)
   if (data.includedTopics) {
@@ -92,7 +104,7 @@ After generating the output, perform a self-audit to ensure all "Mandatory Rules
         case 'list': userParts.push(`- [Organization]: Use bullet points for key takeaways.`); break;
         case 'table': userParts.push(`- [Tabular]: Include data tables${data.tableCaption ? ` titled "${data.tableCaption}"` : ''}.`); break;
         case 'code': userParts.push(`- [Technical]: Provide ${data.programmingLanguage || 'documented'} code snippets.`); break;
-        case 'diagram': userParts.push(`- [Visual]: Describe a ${data.diagramType || 'logic'} diagram using Mermaid.js syntax.`); break;
+        case 'diagram': userParts.push(`- [Visual Architecture]: You MUST include a ${data.diagramType || 'logic'} diagram. Use Mermaid.js syntax only.`); break;
         case 'math': userParts.push(`- [Formulaic]: Apply LaTeX notation for mathematical logic.`); break;
         case 'citation': userParts.push(`- [Referencing]: Adhere strictly to ${data.citationStyle} format for all citations.`); break;
       }

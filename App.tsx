@@ -6,7 +6,7 @@ import {
   Terminal, BarChart, ListCheck, MessageSquare,
   ShieldCheck, BrainCircuit, Target, HelpCircle,
   Briefcase, Cpu, GraduationCap, BookOpen, FileCode,
-  FileBarChart, ScrollText, Layers, ChevronLeft, ChevronRight
+  FileBarChart, ScrollText, Layers, Link as LinkIcon
 } from 'lucide-react';
 import { ProjectData, GeneratedPrompt, FormalityLevel, OutputFormatType, ReasoningFramework, AudienceLevel } from './types';
 import { generatePrompt } from './services/promptEngine';
@@ -16,6 +16,7 @@ const App: React.FC = () => {
   const initialData: ProjectData = {
     projectName: '',
     projectDescription: '',
+    projectUrl: '',
     documentType: '',
     specialization: '',
     educationalLevel: '',
@@ -66,7 +67,6 @@ const App: React.FC = () => {
       ...initialData,
       ...template.data
     });
-    // التمرير للأسفل قليلاً لبدء التحرير
     window.scrollTo({ top: 400, behavior: 'smooth' });
   };
 
@@ -108,6 +108,12 @@ const App: React.FC = () => {
     setFormData(initialData);
   };
 
+  const getComplexityDesc = (val: number) => {
+    if (val < 33) return "مبسط - تركيز على المفاهيم الأساسية والوضوح المباشر.";
+    if (val < 66) return "متوازن - تحليل متوسط مع تفاصيل تقنية معقولة ومناسبة.";
+    return "متقدم - تعمق تقني عالٍ، تحليل نقدي مكثف، ومعالجة شاملة.";
+  };
+
   const getIcon = (iconName: string) => {
     switch(iconName) {
       case 'BrainCircuit': return <BrainCircuit size={20} />;
@@ -123,11 +129,17 @@ const App: React.FC = () => {
     }
   };
 
+  const formatCategories = [
+    { label: 'نصي', formats: ['heading', 'paragraph', 'list'] as OutputFormatType[] },
+    { label: 'تقني', formats: ['code', 'diagram', 'math', 'table'] as OutputFormatType[] },
+    { label: 'أكاديمي', formats: ['citation'] as OutputFormatType[] }
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center p-4 md:p-8">
       <header className="w-full max-w-7xl flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <div className="text-right w-full md:w-auto">
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">مهندس البرومبت المتقدم <span className="text-blue-600">v2.1</span></h1>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">مهندس البرومبت المتقدم <span className="text-blue-600">v2.2</span></h1>
           <p className="text-slate-500 mt-1 text-lg">نظام بناء الأوامر الذكي المعتمد على خوارزميات التفكير المنطقي</p>
         </div>
         <div className="flex gap-3">
@@ -192,6 +204,16 @@ const App: React.FC = () => {
               </div>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                  <LinkIcon size={14} className="text-slate-400" />
+                  رابط المشروع (اختياري)
+                </label>
+                <input type="url" name="projectUrl" value={formData.projectUrl} onChange={handleInputChange} placeholder="https://example.com" className="input-field" />
+              </div>
+            </div>
+
             <textarea name="projectDescription" value={formData.projectDescription} onChange={handleInputChange} rows={2} placeholder="صف الغرض الأساسي من الطلب..." className="input-field resize-none" />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -230,6 +252,25 @@ const App: React.FC = () => {
                   <option value="Executive">تنفيذي (ملخصات واضحة)</option>
                 </select>
               </div>
+            </div>
+
+            <div className="flex flex-col gap-4 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+               <div className="flex justify-between items-center">
+                  <label className="text-sm font-bold text-indigo-900">درجة التعقيد الفني</label>
+                  <span className="text-xs font-black text-white bg-indigo-600 px-3 py-1 rounded-full shadow-sm">{formData.complexity}%</span>
+               </div>
+               <input 
+                  type="range"
+                  name="complexity"
+                  min="0"
+                  max="100"
+                  value={formData.complexity}
+                  onChange={handleInputChange}
+                  className="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                />
+                <p className="text-xs text-indigo-700 font-medium leading-relaxed italic">
+                  {getComplexityDesc(formData.complexity)}
+                </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -278,19 +319,26 @@ const App: React.FC = () => {
               هيكلية المخرجات والنمط
             </h2>
 
-            <div className="flex flex-wrap gap-2">
-              {(['heading', 'paragraph', 'list', 'table', 'code', 'diagram', 'math', 'citation'] as OutputFormatType[]).map(format => (
-                <button key={format} onClick={() => toggleOutputFormat(format)} className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all flex items-center gap-2 ${formData.outputFormats.includes(format) ? 'bg-amber-600 border-amber-600 text-white shadow-md' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'}`}>
-                  {format === 'heading' && 'عناوين'}
-                  {format === 'paragraph' && 'فقرات'}
-                  {format === 'list' && 'قوائم'}
-                  {format === 'table' && 'جداول'}
-                  {format === 'code' && 'أكواد'}
-                  {format === 'diagram' && 'رسومات'}
-                  {format === 'math' && 'معادلات'}
-                  {format === 'citation' && 'اقتباسات'}
-                  {formData.outputFormats.includes(format) && <Check size={14} />}
-                </button>
+            <div className="space-y-4">
+              {formatCategories.map((cat) => (
+                <div key={cat.label} className="space-y-2">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{cat.label}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {cat.formats.map(format => (
+                      <button key={format} onClick={() => toggleOutputFormat(format)} className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all flex items-center gap-2 ${formData.outputFormats.includes(format) ? 'bg-amber-600 border-amber-600 text-white shadow-md' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'}`}>
+                        {format === 'heading' && 'عناوين'}
+                        {format === 'paragraph' && 'فقرات'}
+                        {format === 'list' && 'قوائم'}
+                        {format === 'table' && 'جداول'}
+                        {format === 'code' && 'أكواد'}
+                        {format === 'diagram' && 'رسومات'}
+                        {format === 'math' && 'معادلات'}
+                        {format === 'citation' && 'اقتباسات'}
+                        {formData.outputFormats.includes(format) && <Check size={14} />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
 
@@ -315,14 +363,44 @@ const App: React.FC = () => {
             <textarea name="includedTopics" value={formData.includedTopics} onChange={handleInputChange} rows={3} placeholder="المواضيع المحددة (سطر لكل موضوع)..." className="input-field resize-none" />
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-               <input type="text" name="wordCount" value={formData.wordCount} onChange={handleInputChange} placeholder="الطول المستهدف (مثال: 1000 كلمة)" className="input-field" />
-               <div className="flex p-1 bg-slate-100 rounded-lg gap-1">
-                  {(['Informal', 'Balanced', 'Very Formal'] as FormalityLevel[]).map(level => (
-                    <button key={level} onClick={() => setFormData(prev => ({ ...prev, formality: level }))} className={`flex-1 py-1.5 px-3 rounded-md text-xs font-bold transition-all ${formData.formality === level ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
-                      {level === 'Informal' ? 'غير رسمي' : level === 'Balanced' ? 'متوازن' : 'رسمي جداً'}
-                    </button>
-                  ))}
-                </div>
+              <div className="space-y-4">
+                {formData.outputFormats.includes('diagram') && (
+                  <div className="flex flex-col gap-1 animate-in slide-in-from-right duration-300">
+                    <label className="text-sm font-bold text-amber-700">نوع الرسم البياني المطلوب</label>
+                    <input 
+                      type="text" 
+                      name="diagramType"
+                      value={formData.diagramType}
+                      onChange={handleInputChange}
+                      placeholder="UML Class, Flowchart, Sequence..."
+                      className="input-field border-amber-200 focus:ring-amber-500"
+                    />
+                  </div>
+                )}
+                <input type="text" name="wordCount" value={formData.wordCount} onChange={handleInputChange} placeholder="الطول المستهدف (مثال: 1000 كلمة)" className="input-field" />
+              </div>
+               <div className="flex flex-col gap-4">
+                 <div className="flex p-1 bg-slate-100 rounded-lg gap-1">
+                    {(['Informal', 'Balanced', 'Very Formal'] as FormalityLevel[]).map(level => (
+                      <button key={level} onClick={() => setFormData(prev => ({ ...prev, formality: level }))} className={`flex-1 py-1.5 px-3 rounded-md text-xs font-bold transition-all ${formData.formality === level ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                        {level === 'Informal' ? 'غير رسمي' : level === 'Balanced' ? 'متوازن' : 'رسمي جداً'}
+                      </button>
+                    ))}
+                  </div>
+                  {formData.outputFormats.includes('code') && (
+                    <div className="flex flex-col gap-1 animate-in slide-in-from-right duration-300">
+                      <label className="text-sm font-bold text-slate-600">لغة البرمجة</label>
+                      <input 
+                        type="text" 
+                        name="programmingLanguage"
+                        value={formData.programmingLanguage}
+                        onChange={handleInputChange}
+                        placeholder="Python, JS, C++..."
+                        className="input-field"
+                      />
+                    </div>
+                  )}
+               </div>
             </div>
           </div>
         </section>
