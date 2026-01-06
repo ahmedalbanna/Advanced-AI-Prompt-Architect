@@ -9,7 +9,8 @@ export type OutputFormatType =
   | 'code' 
   | 'diagram' 
   | 'math'
-  | 'citation';
+  | 'citation'
+  | 'toc';
 
 export type ReasoningFramework = 'Standard' | 'Chain of Thought' | 'Step-by-Step' | 'First Principles' | 'Socratic';
 
@@ -18,7 +19,7 @@ export type AudienceLevel = 'Beginner' | 'Student' | 'Professional' | 'Expert/Re
 export interface ProjectData {
   projectName: string;
   projectDescription: string;
-  projectUrl: string; // الحقل الجديد
+  projectUrl: string;
   documentType: string;
   specialization: string;
   educationalLevel: string;
@@ -38,12 +39,12 @@ export interface ProjectData {
   diagramType: string;
   wordCount: string;
   customGuidelines: string;
-  // مدخلات الدقة الجديدة
   audienceLevel: AudienceLevel;
   reasoningFramework: ReasoningFramework;
-  outputVerification: boolean; // هل يراجع الذكاء الاصطناعي مخرجاته؟
-  successCriteria: string; // ما الذي يجعل الإجابة ناجحة؟
+  outputVerification: boolean;
+  successCriteria: string;
   knowledgeHandling: 'Standard' | 'Strict (No Hallucination)' | 'Creative Synthesis';
+  tocStructure: string; // New field for Table of Contents structure
 }
 
 export interface GeneratedPrompt {

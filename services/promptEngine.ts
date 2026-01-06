@@ -99,6 +99,12 @@ After generating the output, perform a self-audit to ensure all "Mandatory Rules
     userParts.push(`\n## OUTPUT SPECIFICATIONS:`);
     data.outputFormats.forEach(format => {
       switch(format) {
+        case 'toc': 
+          userParts.push(`- [Navigation]: Provide a comprehensive Table of Contents at the beginning.`); 
+          if (data.tocStructure) {
+            userParts.push(`  - Preferred Structure: ${data.tocStructure}`);
+          }
+          break;
         case 'heading': userParts.push(`- [Structure]: Use hierarchical headings.`); break;
         case 'paragraph': userParts.push(`- [Text]: Detailed and analytical paragraphs.`); break;
         case 'list': userParts.push(`- [Organization]: Use bullet points for key takeaways.`); break;
